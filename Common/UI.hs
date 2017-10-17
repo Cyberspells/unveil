@@ -35,8 +35,19 @@ makeLenses ''State
 --     draw :: a ->
 
 
+data Point = Point
+  {
+      _x :: Int,
+      _y :: Int
+  }
+makeLenses ''Point
 
-data Frame a = Frame Point a
+data Frame a = Frame
+  {
+      _topLeft :: Point,
+      _content :: a
+  }
+makeLenses ''Frame
 
 data Draw a = Draw (IO ()) a
 
@@ -53,12 +64,6 @@ runWindow i f a =
 
 
 
-data Point = Point
-  {
-      _x :: Int,
-      _y :: Int
-  }
-makeLenses ''Point
 
 data Window a = Window
   {
@@ -108,14 +113,27 @@ double l1 l2 = folding f
     f (Frame (Point i j) x) = [foldOf l1 (Frame (Point i (j + 2)) x)] ++ [foldOf l2 (Frame (Point (i+1) (j+2)) x)]
 
 
-textBox :: Format a => Getter x a -> Getter (F x) Code
-textBox l = to $ \(Frame p x) -> code p x
-  where
-    code (Point i j) x = setCursorPosition i j >> format (x^.l)
+textBox :: Format a => Getter x a -> Window x
+textBox l = Window
+            {
+                _draw = to $ \frame -> setCursorPositionW (frame^.topLeft) >> format (frame^.content^.l),
+                _key = \_ -> id
+            }
 
 
-listBox :: Getter x [a] -> Window x
+setCursorPositionW (Point i j) = setCursorPosition i j
 
+
+
+listBox :: Show a => Getter x [a] -> Window x
+listBox l = textBox $ l.listStrings
+
+
+listStrings :: Show a => Getter [a] Text
+listStrings = to $ \xs -> (intercalate "\n" $ fmap tshow xs)
+
+tshow :: Show a => a -> Text
+tshow a = pack . show $ a
 
 
 
