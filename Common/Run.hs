@@ -14,7 +14,6 @@ run :: IO ()
 run =
   do
       UI.test2
-      UI.showSize
 
 loop :: IO ()
 loop =
