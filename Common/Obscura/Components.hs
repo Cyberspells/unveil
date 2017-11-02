@@ -1,9 +1,10 @@
 
 module Obscura.Components
   (
-      renderBox,
-      listBox,
-      vertical_ms_box
+      displayText,
+      displayList,
+      addBorder,
+      verticalLayout
   )
   where
 
@@ -18,22 +19,32 @@ import Control.Lens
 
 
 
-vertical_ms_box :: Projection x -> Projection x -> Projection x
-vertical_ms_box p q = (p & draw %~ (. frame1)) <> (q & draw %~ (. frame2))
+verticalLayout :: Projection x -> Projection x -> Projection x
+verticalLayout p q = (p & draw %~ (. frame1)) <> (q & draw %~ (. frame2))
   where
     frame1 = _1 %~ (\(Frame position (Point h w)) -> Frame position (Point (h - 2) w))
     frame2 = _1 %~ (\(Frame (Point x y) (Point h w)) -> Frame (Point h y) (Point 1 w))
 
 
-renderBox :: Render a => Getter x a -> Projection x
-renderBox l = Projection
+addBorder :: Projection x -> Projection x
+addBorder p = (p & draw %~ (. frameChange)) <> border
+  where
+    frameChange = _1 <>~ (Frame (Point 1 1) (Point (-1) (-1)))
+    border = Projection
+             {
+                 _draw = \(frame, _) -> renderBorder frame,
+                 _key = \_ -> id
+             }
+
+displayText :: Render a => Getter x a -> Projection x
+displayText l = Projection
             {
                 _draw = \(frame, x) -> render (frame, (x^.l)),
                 _key = \_ -> id
             }
 
-listBox :: Show a => Getter x [a] -> Projection x
-listBox l = renderBox (l.to listStrings)
+displayList :: Show a => Getter x [a] -> Projection x
+displayList l = displayText (l.to listStrings)
   where
     listStrings :: Show a => [a] -> Text
     listStrings = intercalate "\n" . fmap (pack . show)

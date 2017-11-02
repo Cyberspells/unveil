@@ -25,6 +25,10 @@ data Point = Point
   }
 makeLenses ''Point
 
+instance Monoid Point where
+    mempty = Point 0 0
+    mappend (Point x y) (Point a b) = Point (x + a) (y + b)
+
 
 data Frame = Frame
   {
@@ -32,6 +36,10 @@ data Frame = Frame
       _size :: Point
   }
 makeLenses ''Frame
+
+instance Monoid Frame where
+    mempty = Frame mempty mempty
+    mappend (Frame p s) (Frame q t) = Frame (p <> q) (s <> t)
 
 
 

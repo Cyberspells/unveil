@@ -55,9 +55,9 @@ makeLenses ''State
 
 initialState = State "hello" "this is my text\nand another one which is to long for this world\n\n\n\n\n\n\n hello?\n\nIs anyone there?\n\n\n\n Just kidding!"
 
-stateP = vertical_ms_box
-           (renderBox testContent)
-           (renderBox title)
+stateP = verticalLayout
+           (addBorder (displayText testContent))
+           (displayText title)
 
 
 test2 = clearScreen >> runProjection stateP initialState

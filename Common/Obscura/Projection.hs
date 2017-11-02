@@ -24,7 +24,7 @@ runProjection w a =
       case s of
         Nothing -> putStrLn "Error: Could not get terminal size."
         Just psize  -> do
-            let frame = (Frame (Point 1 1) psize, a)
+            let frame = (Frame (Point 0 0) psize, a)
             (w^.draw) frame
             hFlush stdout
             _ <- getHiddenChar

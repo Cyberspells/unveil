@@ -1,7 +1,8 @@
 
 module Obscura.Render
   (
-      Render(..)
+      Render(..),
+      renderBorder
   )
   where
 
@@ -31,13 +32,38 @@ instance Render Text where
 
 
 renderText :: (Frame, Text) -> Code
-renderText (Frame position size, text) = mapM_ putLine $ Prelude.zip [ Point x (position^.y) | x <- [(position^.x) .. (position^.x) + (size^.x)]] (Data.Text.lines text)
+renderText (Frame position size, text) = mapM_ putLine $ Prelude.zip [ Point x (position^.y) | x <- [(position^.x) .. (position^.x) + (size^.x) - 1]] (Data.Text.lines text)
   where
     putLine :: (Point, Text) -> Code
     putLine (p, l) = setCursorPositionP p >> putStr cleanLine
       where
-        cleanLine = Prelude.take (size^.y) (unpack l ++ repeat ' ')
+        cleanLine = Prelude.take (size^.y - 1) (unpack l ++ repeat ' ')
 
 
 setCursorPositionP :: Point -> Code
 setCursorPositionP (Point i j) = setCursorPosition i j
+
+renderBorder :: Frame -> Code
+renderBorder (Frame pos size) =
+  do
+      horizontal pos (size^.y)
+      vertical pos (size^.y)
+      vertical (pos & y +~ (size^.y)) (size^.x)
+      horizontal (pos & x +~ (size^.x)) (size^.y)
+
+
+  where
+    horizontal :: Point -> Int -> Code
+    horizontal pos length =
+      do
+          setCursorPositionP pos
+          putStr (Prelude.replicate length '-')
+
+    vertical :: Point -> Int -> Code
+    vertical pos length = 
+      let points =
+            [ Point i (pos^.y) | i <- [pos^.x .. pos^.x + length - 1]]
+          putPoint p =
+            setCursorPositionP p >> putStr "|"
+
+      in mapM_ putPoint points
