@@ -18,6 +18,10 @@ library
   exposed-modules:     Run
                      , CLI
                      , UI
+                     , Obscura.Components
+                     , Obscura.Projection
+                     , Obscura.Render
+                     , Obscura.Types
   build-depends:       base >= 4.7 && < 5
                      , optparse-applicative
                      , ansi-terminal
