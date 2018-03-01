@@ -46,6 +46,7 @@ setCursorPositionP (Point i j) = setCursorPosition i j
 renderBorder :: Frame -> Code
 renderBorder (Frame pos size) =
   do
+      setSGR [SetSwapForegroundBackground True]
       horizontal pos (size^.y)
       vertical pos (size^.y)
       vertical (pos & y +~ (size^.y)) (size^.x)
@@ -57,13 +58,13 @@ renderBorder (Frame pos size) =
     horizontal pos length =
       do
           setCursorPositionP pos
-          putStr (Prelude.replicate length '-')
+          putStr (Prelude.replicate length ' ')
 
     vertical :: Point -> Int -> Code
     vertical pos length = 
       let points =
             [ Point i (pos^.y) | i <- [pos^.x .. pos^.x + length - 1]]
           putPoint p =
-            setCursorPositionP p >> putStr "|"
+            setCursorPositionP p >> putStr " "
 
       in mapM_ putPoint points

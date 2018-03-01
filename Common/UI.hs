@@ -53,7 +53,7 @@ makeLenses ''State
 -- new, only getter
 
 
-initialState = State "hello" "this is my text\nand another one which is to long for this world\n\n\n\n\n\n\n hello?\n\nIs anyone there?\n\n\n\n Just kidding!"
+initialState = State "hello" "this is my text\nand another one which is too long for this world\n\n\n\n\n\n\n hello?\n\nIs anyone there?\n\n\n\n Just kidding!"
 
 stateP = verticalLayout
            (addBorder (displayText testContent))
