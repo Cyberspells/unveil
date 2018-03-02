@@ -1,5 +1,5 @@
 
-module CLI
+module UI.CLI
   (
   )
   where

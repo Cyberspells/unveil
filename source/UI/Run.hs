@@ -1,12 +1,12 @@
 
-module Run
+module UI.Run
   (
       run
   )
   where
 
-import qualified CLI
-import qualified UI
+import qualified UI.CLI as CLI
+import qualified UI.UI as UI
 
 import System.IO.HiddenChar
 

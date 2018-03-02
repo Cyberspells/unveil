@@ -28,6 +28,8 @@ library:
     - OverloadedStrings
     - RankNTypes
     - TemplateHaskell
+    - QuasiQuotes
+    - FlexibleContexts
   dependencies:
     - optparse-applicative
     - ansi-terminal
@@ -35,6 +37,12 @@ library:
     - lens
     - text
     - hidden-char
+    - path
+    - path-io
+    - mtl
+    - bytestring
+    - yaml
+    - aeson
 
 
 executables:
@@ -47,6 +55,7 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - unveil
+    - mtl
 
 tests:
   unveil-test:
