@@ -17,7 +17,7 @@ data FileF a = FileF (Path Abs File) a
 
 
 
-exDir :: Path Abs Dir -> ExceptT String IO (ExPath Abs Dir)
+exDir :: Path Abs Dir -> PartIO (ExPath Abs Dir)
 exDir p =
   do
       bExists <- lift $ doesDirExist p

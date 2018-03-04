@@ -1,7 +1,8 @@
 
 module Environment
   (
-      readEnvironment
+      readEnvironment,
+      verifyConfig
   )
   where
 
@@ -17,14 +18,7 @@ import Data.Yaml
 import qualified Data.ByteString as ByteString
 
 
-data Environment = Environment
-  {
-      config :: Config
-  }
-  deriving (Show)
 
-readEnvironment :: PartIO Environment
-readEnvironment = Environment <$> readConfig
 
 readConfig :: PartIO Config
 readConfig = (liftEither . decodeEither) =<< content
@@ -36,6 +30,8 @@ readConfig = (liftEither . decodeEither) =<< content
     content = lift file >>= safeReadFile
 
 
+
+
 ----------------------------------
 -- configuration
 
@@ -45,3 +41,26 @@ data Config = Config
   }
   deriving (Show)
 $(deriveJSON defaultOptions ''Config)
+
+
+data VerConfig = VerConfig
+  {
+      verUnveilPath :: ExPath Abs Dir
+  }
+  deriving (Show)
+
+verifyConfig :: Config -> PartIO VerConfig
+verifyConfig = fmap VerConfig . (exDir <=< (lift . parseAbsDir . unveilPath))
+
+
+------------------------------------------------
+-- Build environment
+data Environment = Environment
+  {
+      config :: VerConfig
+  }
+  deriving (Show)
+
+readEnvironment :: PartIO Environment
+readEnvironment = Environment <$> (verifyConfig =<< readConfig)
+
