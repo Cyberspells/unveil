@@ -1,6 +1,8 @@
 
 module Environment
   (
+      Environment (..),
+      VerConfig (..),
       readInitState,
       verifyConfig
   )
@@ -38,7 +40,7 @@ readConfig = (liftEither . decodeEither) =<< content
 
 data Config = Config
   {
-      unveilPath :: String
+      theater :: String
   }
   deriving (Show)
 $(deriveJSON defaultOptions ''Config)
@@ -46,12 +48,12 @@ $(deriveJSON defaultOptions ''Config)
 
 data VerConfig = VerConfig
   {
-      verUnveilPath :: ExPath Dir
+      verTheater :: ExPath Dir
   }
   deriving (Show)
 
 verifyConfig :: Config -> PartIO VerConfig
-verifyConfig = fmap VerConfig . (exDir <=< (lift . parseAbsDir . unveilPath))
+verifyConfig = fmap VerConfig . (exDir <=< (lift . parseAbsDir . theater))
 
 
 ------------------------------------------------
@@ -113,7 +115,7 @@ readCommand :: PartIO Command
 readCommand = lift $ execParser commandInfo
 
 verCommand :: Command -> PartIO VerCommand
-verCommand (Command a f) = VerCommand a <$> checkPath f
+verCommand (Command a f) = VerCommand a <$> exPath f
 
 readInitState :: PartIO (Environment, VerCommand)
 readInitState = (,) <$> readEnvironment <*> (verCommand =<< readCommand)

@@ -8,23 +8,37 @@ import Path.IO
 
 import qualified Data.ByteString as ByteString
 
+newtype NonExPath = NonExPath FilePath
+  deriving (Show)
 
-newtype ExPath t = ExPath (Path Abs t)
+newtype ExPath t = ExPath { unver :: Path Abs t}
   deriving (Show)
 
 data FileF a = FileF (Path Abs File) a
 
-
-checkPath :: FilePath -> PartIO (Either (ExPath File) (ExPath Dir))
-checkPath p =
+nonExPath :: FilePath -> PartIO NonExPath
+nonExPath p =
   do
-      base <- lift $ getCurrentDir
+      file <- parseAbsFile p
+      dir  <- parseAbsDir p
 
-      file <- (base </>) <$> (lift $ parseRelFile p)
-      dir  <- (base </>) <$> (lift $ parseRelDir p)
+      bFile <- doesFileExist file
+      bDir  <- doesDirExist dir
 
-      bFile <- lift $ doesFileExist file
-      bDir  <- lift $ doesDirExist dir
+      case bFile || bDir of
+        False -> return $ NonExPath p
+        True  -> throwError $ "Path '" ++ p ++ "' was expected to be non-existant, but it does exist."
+
+exPath :: FilePath -> PartIO (Either (ExPath File) (ExPath Dir))
+exPath p =
+  do
+      base <- getCurrentDir
+
+      file <- (base </>) <$> (parseRelFile p)
+      dir  <- (base </>) <$> (parseRelDir p)
+
+      bFile <- doesFileExist file
+      bDir  <- doesDirExist dir
 
       case (bFile, bDir) of
         (True, False) -> return (Left $ ExPath file)
@@ -32,10 +46,18 @@ checkPath p =
         _             -> throwError ("File or directory '" ++ show p ++ "' does not exist.")
 
 
+exFile :: Path Abs File -> PartIO (ExPath File)
+exFile p =
+  do
+      bExists <- doesFileExist p
+      if bExists
+        then (return (ExPath p))
+        else (throwError ("File " ++ show p ++ " does not exist."))
+
 exDir :: Path Abs Dir -> PartIO (ExPath Dir)
 exDir p =
   do
-      bExists <- lift $ doesDirExist p
+      bExists <- doesDirExist p
       if bExists
         then (return (ExPath p))
         else (throwError ("Directory " ++ show p ++ " does not exist."))
@@ -43,7 +65,7 @@ exDir p =
 safeReadFile :: Path Abs File -> PartIO (ByteString.ByteString)
 safeReadFile p =
   do
-      bExists <- lift $ doesFileExist p
+      bExists <- doesFileExist p
       if bExists
         then (lift $ ByteString.readFile (toFilePath p))
         else (throwError ("File " ++ show p ++ " does not exist."))

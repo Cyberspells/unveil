@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: e680189a007144f9a5a5761c3fef943973162f96f6d31b5678a64fde2fc7a437
+-- hash: d7a4da679263bcd7f8ec58174b66483acd2229ed6236bfcd3b9c76084ee52119
 
 name:           unveil
 version:        0.1.0.0
@@ -28,11 +28,12 @@ source-repository head
 library
   hs-source-dirs:
       source
-  default-extensions: OverloadedStrings RankNTypes TemplateHaskell QuasiQuotes FlexibleContexts
+  default-extensions: OverloadedStrings RankNTypes TemplateHaskell QuasiQuotes FlexibleContexts DuplicateRecordFields OverloadedLabels TypeApplications
   build-depends:
       aeson
     , ansi-terminal
     , base >=4.7 && <5
+    , bifunctors
     , bytestring
     , hidden-char
     , lens
@@ -51,6 +52,7 @@ library
       Obscura.Projection
       Obscura.Render
       Obscura.Types
+      Theater
       UI.CLI
       UI.Run
       UI.UI

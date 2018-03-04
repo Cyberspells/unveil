@@ -2,7 +2,8 @@
 module Core
   (
       PartIO,
-      liftEither
+      liftEither,
+      (->>)
   )
 where
 
@@ -15,3 +16,9 @@ type PartIO a = ExceptT String IO a
 
 liftEither :: MonadError e m => Either e a -> m a
 liftEither = either throwError return
+
+
+infixl 9 ->>
+(->>) :: a -> (a -> b) -> b
+x ->> f = f x
+

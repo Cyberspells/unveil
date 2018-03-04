@@ -30,6 +30,9 @@ library:
     - TemplateHaskell
     - QuasiQuotes
     - FlexibleContexts
+    - DuplicateRecordFields
+    - OverloadedLabels
+    - TypeApplications
   dependencies:
     - optparse-applicative
     - ansi-terminal
@@ -43,6 +46,7 @@ library:
     - bytestring
     - yaml
     - aeson
+    - bifunctors
 
 
 executables:
