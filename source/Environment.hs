@@ -1,7 +1,7 @@
 
 module Environment
   (
-      readEnvironment,
+      readInitState,
       verifyConfig
   )
   where
@@ -13,7 +13,10 @@ import Path.IO
 import Filesystem
 import Core
 import Data.Aeson.TH
-import Data.Yaml
+import Data.Yaml (decodeEither)
+
+import Options.Applicative
+import Data.Semigroup ((<>))
 
 import qualified Data.ByteString as ByteString
 
@@ -28,8 +31,6 @@ readConfig = (liftEither . decodeEither) =<< content
 
     content :: PartIO ByteString.ByteString
     content = lift file >>= safeReadFile
-
-
 
 
 ----------------------------------
@@ -64,3 +65,42 @@ data Environment = Environment
 readEnvironment :: PartIO Environment
 readEnvironment = Environment <$> (verifyConfig =<< readConfig)
 
+
+------------------------------------------------
+-- Command
+data Command = Command
+  {
+      action :: Action,
+      file   :: String
+  }
+  deriving (Show)
+
+data Action = Open | Close
+  deriving (Show)
+
+commandP :: Parser Command
+commandP = Command <$> actionP <*> fileP
+  where
+    actionP :: Parser Action
+    actionP = flag Open Close
+              (
+                  long "close" <>
+                  short 'c' <>
+                  help "Whether to close the given FILE (default: open)"
+              )
+
+    fileP = argument str
+            (
+                metavar "FILE"
+            )
+
+commandInfo :: ParserInfo Command
+commandInfo = info (commandP <**> helper)
+              (
+                  fullDesc <>
+                  progDesc "Encrypt & decrypt files" <>
+                  header "/// unveil ///"
+              )
+
+readInitState :: PartIO (Environment, Command)
+readInitState = (,) <$> readEnvironment <*> (lift $ execParser commandInfo)
