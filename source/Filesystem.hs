@@ -9,15 +9,30 @@ import Path.IO
 import qualified Data.ByteString as ByteString
 
 
-newtype ExPath b t = ExPath (Path b t)
+newtype ExPath t = ExPath (Path Abs t)
   deriving (Show)
 
 data FileF a = FileF (Path Abs File) a
 
 
+checkPath :: FilePath -> PartIO (Either (ExPath File) (ExPath Dir))
+checkPath p =
+  do
+      base <- lift $ getCurrentDir
+
+      file <- (base </>) <$> (lift $ parseRelFile p)
+      dir  <- (base </>) <$> (lift $ parseRelDir p)
+
+      bFile <- lift $ doesFileExist file
+      bDir  <- lift $ doesDirExist dir
+
+      case (bFile, bDir) of
+        (True, False) -> return (Left $ ExPath file)
+        (False, True) -> return (Right $ ExPath dir)
+        _             -> throwError ("File or directory '" ++ show p ++ "' does not exist.")
 
 
-exDir :: Path Abs Dir -> PartIO (ExPath Abs Dir)
+exDir :: Path Abs Dir -> PartIO (ExPath Dir)
 exDir p =
   do
       bExists <- lift $ doesDirExist p

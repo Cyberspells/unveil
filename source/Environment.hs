@@ -46,7 +46,7 @@ $(deriveJSON defaultOptions ''Config)
 
 data VerConfig = VerConfig
   {
-      verUnveilPath :: ExPath Abs Dir
+      verUnveilPath :: ExPath Dir
   }
   deriving (Show)
 
@@ -102,5 +102,18 @@ commandInfo = info (commandP <**> helper)
                   header "/// unveil ///"
               )
 
-readInitState :: PartIO (Environment, Command)
-readInitState = (,) <$> readEnvironment <*> (lift $ execParser commandInfo)
+data VerCommand = VerCommand
+  {
+      verAction :: Action,
+      verTarget :: Either (ExPath File) (ExPath Dir)
+  }
+  deriving (Show)
+
+readCommand :: PartIO Command
+readCommand = lift $ execParser commandInfo
+
+verCommand :: Command -> PartIO VerCommand
+verCommand (Command a f) = VerCommand a <$> checkPath f
+
+readInitState :: PartIO (Environment, VerCommand)
+readInitState = (,) <$> readEnvironment <*> (verCommand =<< readCommand)
