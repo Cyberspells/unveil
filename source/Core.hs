@@ -3,11 +3,15 @@ module Core
   (
       PartIO,
       liftEither,
-      (->>)
+      (->>),
+      (´),
+      module Control.Monad.Except,
+      module Control.Monad.Catch
   )
 where
 
 import Control.Monad.Except
+import Control.Monad.Catch
 
 type PartIO a = ExceptT String IO a
 
@@ -21,4 +25,7 @@ liftEither = either throwError return
 infixl 9 ->>
 (->>) :: a -> (a -> b) -> b
 x ->> f = f x
+
+
+(´) = flip (.)
 

@@ -33,6 +33,8 @@ library:
     - DuplicateRecordFields
     - OverloadedLabels
     - TypeApplications
+    - NamedFieldPuns
+
   dependencies:
     - optparse-applicative
     - ansi-terminal
@@ -47,12 +49,15 @@ library:
     - yaml
     - aeson
     - bifunctors
+    - exceptions
 
 
 executables:
   unveil:
     main:                Main.hs
     source-dirs:         main
+    default-extensions:
+      - NamedFieldPuns
     ghc-options:
     - -threaded
     - -rtsopts

@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: d7a4da679263bcd7f8ec58174b66483acd2229ed6236bfcd3b9c76084ee52119
+-- hash: 7f79b05de70577865ee181c53b96783af9d27d480e7b346984e7ada9e3acdc16
 
 name:           unveil
 version:        0.1.0.0
@@ -28,13 +28,14 @@ source-repository head
 library
   hs-source-dirs:
       source
-  default-extensions: OverloadedStrings RankNTypes TemplateHaskell QuasiQuotes FlexibleContexts DuplicateRecordFields OverloadedLabels TypeApplications
+  default-extensions: OverloadedStrings RankNTypes TemplateHaskell QuasiQuotes FlexibleContexts DuplicateRecordFields OverloadedLabels TypeApplications NamedFieldPuns
   build-depends:
       aeson
     , ansi-terminal
     , base >=4.7 && <5
     , bifunctors
     , bytestring
+    , exceptions
     , hidden-char
     , lens
     , mtl
@@ -45,14 +46,18 @@ library
     , text
     , yaml
   exposed-modules:
+      Action
       Core
       Environment
+      Environment.Command
+      Environment.Config
+      Environment.Theater
+      Error
       Filesystem
       Obscura.Components
       Obscura.Projection
       Obscura.Render
       Obscura.Types
-      Theater
       UI.CLI
       UI.Run
       UI.UI
@@ -64,6 +69,7 @@ executable unveil
   main-is: Main.hs
   hs-source-dirs:
       main
+  default-extensions: NamedFieldPuns
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5

@@ -3,20 +3,36 @@ module Filesystem where
 
 import Core
 import Control.Monad.Except
+import Control.Monad.Catch
 import Path
 import Path.IO
+import Data.Typeable
 
 import qualified Data.ByteString as ByteString
 
 newtype NonExPath = NonExPath FilePath
   deriving (Show)
 
-newtype ExPath t = ExPath { unver :: Path Abs t}
+newtype ExPath t = ExPath { trustEx :: Path Abs t}
   deriving (Show)
 
 data FileF a = FileF (Path Abs File) a
 
-nonExPath :: FilePath -> PartIO NonExPath
+data FileException =
+      PathDoesNotExist String
+    | FileDoesNotExist String
+    | DirDoesNotExist  String
+    | PathShouldNotExist String
+    deriving (Typeable)
+
+instance Show FileException where
+    show (PathDoesNotExist p)   = "File or directory '" ++ show p ++ "' does not exist."
+    show (FileDoesNotExist p)   = "File " ++ show p ++ " does not exist."
+    show (DirDoesNotExist  p)   = "Directory " ++ show p ++ " does not exist."
+    show (PathShouldNotExist p) = "Path '" ++ p ++ "' was expected to be non-existant, but it does exist."
+instance Exception FileException
+
+nonExPath :: (MonadIO m, MonadThrow m) => FilePath -> m NonExPath
 nonExPath p =
   do
       file <- parseAbsFile p
@@ -27,9 +43,9 @@ nonExPath p =
 
       case bFile || bDir of
         False -> return $ NonExPath p
-        True  -> throwError $ "Path '" ++ p ++ "' was expected to be non-existant, but it does exist."
+        True  -> throwM $ PathShouldNotExist p
 
-exPath :: FilePath -> PartIO (Either (ExPath File) (ExPath Dir))
+exPath :: (MonadIO m, MonadThrow m) => FilePath -> m (Either (ExPath File) (ExPath Dir))
 exPath p =
   do
       base <- getCurrentDir
@@ -43,24 +59,24 @@ exPath p =
       case (bFile, bDir) of
         (True, False) -> return (Left $ ExPath file)
         (False, True) -> return (Right $ ExPath dir)
-        _             -> throwError ("File or directory '" ++ show p ++ "' does not exist.")
+        _             -> throwM (PathDoesNotExist p)
 
 
-exFile :: Path Abs File -> PartIO (ExPath File)
+exFile :: (MonadIO m, MonadThrow m) => Path Abs File -> m (ExPath File)
 exFile p =
   do
       bExists <- doesFileExist p
       if bExists
         then (return (ExPath p))
-        else (throwError ("File " ++ show p ++ " does not exist."))
+        else (throwM $ FileDoesNotExist (p->>toFilePath))
 
-exDir :: Path Abs Dir -> PartIO (ExPath Dir)
+exDir :: (MonadIO m, MonadThrow m) => Path Abs Dir -> m (ExPath Dir)
 exDir p =
   do
       bExists <- doesDirExist p
       if bExists
         then (return (ExPath p))
-        else (throwError ("Directory " ++ show p ++ " does not exist."))
+        else (throwM (DirDoesNotExist (p->>toFilePath)))
 
 safeReadFile :: Path Abs File -> PartIO (ByteString.ByteString)
 safeReadFile p =
@@ -68,4 +84,15 @@ safeReadFile p =
       bExists <- doesFileExist p
       if bExists
         then (lift $ ByteString.readFile (toFilePath p))
-        else (throwError ("File " ++ show p ++ " does not exist."))
+        else (throwM (FileDoesNotExist (p->>toFilePath)))
+
+
+
+lockfilePath :: MonadThrow m => Path d File -> m (Path d File)
+lockfilePath = (<.> "lock")
+
+lockdirPath :: MonadThrow m => Path d Dir -> m (Path d Dir)
+lockdirPath = rename (++ ".lock")
+  where
+    rename :: MonadThrow m => (String -> String) -> Path b Dir -> m (Path b Dir)
+    rename f d = (d->>parent </>) <$> parseRelDir (f (d->>dirname->>toFilePath))
