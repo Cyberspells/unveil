@@ -50,6 +50,8 @@ library:
     - aeson
     - bifunctors
     - exceptions
+    - Command
+    - haskeline
 
 
 executables:

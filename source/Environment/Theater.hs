@@ -64,6 +64,7 @@ data VerMapping t = VerMapping
 readTheater :: ExPath Dir -> PartIO VerTheater
 readTheater theaterDir =
     let
+
         --------------------------------------------------
         -- load the theater.yaml file from disk
 

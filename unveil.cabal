@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 7f79b05de70577865ee181c53b96783af9d27d480e7b346984e7ada9e3acdc16
+-- hash: a28e08657b291831d2e2a6224c555ca7a3c7e677ebc837b30d1d47b843f140c0
 
 name:           unveil
 version:        0.1.0.0
@@ -30,12 +30,14 @@ library
       source
   default-extensions: OverloadedStrings RankNTypes TemplateHaskell QuasiQuotes FlexibleContexts DuplicateRecordFields OverloadedLabels TypeApplications NamedFieldPuns
   build-depends:
-      aeson
+      Command
+    , aeson
     , ansi-terminal
     , base >=4.7 && <5
     , bifunctors
     , bytestring
     , exceptions
+    , haskeline
     , hidden-char
     , lens
     , mtl
