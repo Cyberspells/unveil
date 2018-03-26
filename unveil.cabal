@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a28e08657b291831d2e2a6224c555ca7a3c7e677ebc837b30d1d47b843f140c0
+-- hash: 63fa3b40c8e3fd3b74538d5999fbcfb86bd09ea64014de0bb490d3e606b03e47
 
 name:           unveil
 version:        0.1.0.0
@@ -46,6 +46,7 @@ library
     , path-io
     , terminal-size
     , text
+    , utf8-string
     , yaml
   exposed-modules:
       Action
@@ -60,6 +61,7 @@ library
       Obscura.Projection
       Obscura.Render
       Obscura.Types
+      Run
       UI.CLI
       UI.Run
       UI.UI

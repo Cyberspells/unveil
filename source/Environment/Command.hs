@@ -49,8 +49,8 @@ commandInfo :: ParserInfo Command
 commandInfo = info (commandP <**> helper)
               (
                   fullDesc <>
-                  progDesc "Encrypt & decrypt files" <>
-                  header "/// unveil ///"
+                  header "<< unveil >> by Makuri. Part of the Cyberspells collection." <>
+                  progDesc "Encrypts and decrypts file trees."
               )
 
 data VerCommand = VerCommand
@@ -64,6 +64,6 @@ data VerCommand = VerCommand
 readCommand :: PartIO VerCommand
 readCommand =
   do
-      (Command a f) <- lift $ execParser commandInfo
+      (Command a f) <- lift $ customExecParser (prefs showHelpOnEmpty) commandInfo
       VerCommand a <$> exPath f
 

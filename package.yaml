@@ -46,6 +46,7 @@ library:
     - path-io
     - mtl
     - bytestring
+    - utf8-string
     - yaml
     - aeson
     - bifunctors

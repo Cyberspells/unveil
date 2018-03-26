@@ -17,7 +17,11 @@ import Path
 import Path.IO
 -- (for password)
 import System.Console.Haskeline
+import Data.Typeable
 
+data GpgException = GpgException String String
+  deriving (Show, Typeable)
+instance Exception GpgException
 
 cipher :: String
 cipher = "AES265"
